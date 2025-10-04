@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CYBER TU</title>
+  <style>
+    :root{
+      --grad: linear-gradient(90deg,#240993,#6210A9,#6210A9,#6210A9,#7112AF,#7112AF);
+      --hdr: 72px; --ftr: 44px; --panelW: 320px; --gap: 16px; --progressH: 32px;
+    }
+    *{ box-sizing:border-box; font-family:system-ui, Tahoma, Arial; margin:0; padding:0; }
+    html,body{ height:100%; }
+    body{
+      background:url('IMG_Tu.jpeg') no-repeat center center fixed;
+      background-size:cover; color:#fff; overflow:hidden;
+    }
+    /* Header */
+    header{
+      position:fixed; top:0; left:0; right:0; height:var(--hdr);
+      background:var(--grad); color:#fff; display:grid; grid-template-columns:80px 1fr 70px;
+      align-items:center; gap:10px; padding:10px 20px; z-index:1000;
+    }
+    header img{ height:60px; justify-self:center; }
+    /* -------------------------------------------------------------*/
+    header img:last-child {
+  transform: translateX(-75px); /* يحرك الصورة 15px لليسار */
+} /* -------------------------------------------------------------*/SFX_BASE
+
+    .hdrCenter{ display:flex; align-items:center; justify-content:center; gap:12px; }
+    .hdrTitle{
+      font-weight:900; font-size:22px; letter-spacing:.5px; position:relative;
+      background: linear-gradient(90deg,#ffe29f,#ffa99f,#a18cd1,#fbc2eb,#ffe29f);
+      background-size: 300% 100%;
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      animation: titleShine 6s linear infinite;
+      text-shadow: 0 0 10px rgba(255,255,255,.25);
+    }
+    .hdrTitle::after{
+      content:""; position:absolute; left:0; right:0; bottom:-6px; height:3px;
+      background: linear-gradient(90deg,transparent,#ffd86b,#ff9dea,transparent);
+      filter: blur(.3px); animation: underlineWave 2.4s ease-in-out infinite; border-radius:999px;
+    }
+    @keyframes titleShine{ 0%{background-position:0% 0;} 100%{background-position:300% 0;} }
+    @keyframes underlineWave{ 0%,100%{ transform:translateX(-8px) scaleX(.95); opacity:.7; } 50%{ transform:translateX(8px) scaleX(1.05); opacity:1; } }
+    .missionTopBtn{
+      border:none; cursor:pointer; padding:8px 12px; border-radius:10px; color:#fff;
+      background:rgba(0,0,0,.25); backdrop-filter: blur(6px); box-shadow:0 6px 18px rgba(0,0,0,.25);
+      display:flex; align-items:center; gap:8px; font-weight:700; transition: transform .15s ease, filter .15s ease;
+    }
+    .missionTopBtn:hover{ transform:translateY(-1px); filter:brightness(1.05); }
+
+    /* Footer */
+    footer{
+      position:fixed; left:0; right:0; bottom:0; height:var(--ftr);
+      background:var(--grad); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; z-index:1000; gap:8px;
+    }
+    footer .ear{ font-size:18px; opacity:.9 }
+
+    /* Progress */
+    .missionProgress{
+      position:fixed; top:var(--hdr); left:0; right:0; height:var(--progressH);
+      display:grid; grid-template-columns: 1fr auto auto; align-items:center; gap:12px;
+      padding:6px 14px; z-index:1000; backdrop-filter:blur(4px); background: rgba(0,0,0,0.28);
+    }
+    .barWrap{ position:relative; height:8px; width:100%; border-radius:999px; background:rgba(255,255,255,0.2); overflow:hidden; }
+    .barFill{
+      position:absolute; left:0; top:0; bottom:0; width:0%;
+      background:linear-gradient(90deg,#7112AF,#C8A75F);
+      box-shadow:0 0 10px rgba(113,18,175,.45), 0 0 18px rgba(200,167,95,.35);
+      border-radius:999px; transition:width .35s ease;
+    }
+    .miniStages{ display:flex; align-items:center; gap:8px; padding-inline-end:6px; }
+    .mini{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+      font-size:14px; user-select:none; box-shadow:0 0 8px rgba(0,0,0,.25); transition:transform .15s ease, box-shadow .2s ease, background .2s ease; }
+    .mini.locked{ background:#ea2b2b; }
+    .mini.unlocked{ background:#ea2b2b; box-shadow:0 0 10px rgba(234,43,43,.6); }
+    .mini.completed{ background:#17b45f; box-shadow:0 0 10px rgba(23,180,95,.6); }
+    .scoreChip{
+      background: rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.25);
+      padding:4px 10px; border-radius:10px; font-weight:700; box-shadow:0 4px 12px rgba(0,0,0,.25); white-space:nowrap;
+    }
+
+    /* Map */
+    .mapOverlay{ position:fixed; top:calc(var(--hdr) + var(--progressH)); bottom:var(--ftr); left:0; right:calc(var(--panelW) + var(--gap)*2); transform-origin:center center; }
+
+    /* Circle image */
+    .circle-img{
+      position:fixed; bottom:calc(var(--ftr) + 180px); left:24px; width:165px; height:165px; border-radius:50%; overflow:hidden;
+      box-shadow:0 0 25px rgba(200,167,95,.85); z-index:1400; animation:pulseGlow 2s infinite;
+    }
+    .circle-img img{ width:100%; height:100%; object-fit:cover; }
+    @keyframes pulseGlow{ 0%{ box-shadow:0 0 25px rgba(200,167,95,.85); transform:scale(1); } 50%{ box-shadow:0 0 50px rgba(200,167,95,1); transform:scale(1.05); } 100%{ box-shadow:0 0 25px rgba(200,167,95,.85); transform:scale(1); } }
+
+    /* Stages pins */
+    .stage{
+      position:absolute; transform:translate(-50%,-50%); width:32px; height:32px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center; cursor:pointer; --pulse: transparent;
+      transition:transform .15s ease, opacity .2s ease, filter .2s ease, box-shadow .2s ease;
+    }
+    .stage:hover{ transform:translate(-50%,-50%) scale(1.15); }
+    .stage.locked{ background:#ea2b2b; opacity:.95; pointer-events:none; box-shadow:0 0 14px rgba(234,43,43,.6); --pulse: rgba(234,43,43,.4); }
+    .stage.unlocked{ background:#ea2b2b; box-shadow:0 0 14px rgba(234,43,43,.85); --pulse: rgba(234,43,43,.55); }
+    .stage.completed{ background:#17b45f; box-shadow:0 0 14px rgba(23,180,95,.9), 0 0 22px rgba(200,167,95,.55); cursor:default; --pulse: rgba(23,180,95,.6); }
+    .stage::before,.stage::after{ content:""; position:absolute; inset:0; border-radius:50%; pointer-events:none; box-shadow:0 0 0 0 var(--pulse); animation:ripple 1.8s ease-out infinite; }
+    .stage::after{ animation-delay:.6s; }
+    .stage .label{
+      position:absolute; top:-36px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:6px;
+      background:linear-gradient(90deg,#240993,#6210A9,#7112AF,#C8A75F); color:#fff; padding:4px 10px; border-radius:8px; font-size:13px; font-weight:700; white-space:nowrap;
+      box-shadow:0 2px 8px rgba(0,0,0,.35); user-select:none; z-index:2;
+    }
+    @keyframes ripple{ 0%{ box-shadow:0 0 0 0 var(--pulse); opacity:.85; } 60%{ box-shadow:0 0 0 14px rgba(0,0,0,0); opacity:.45; } 100%{ box-shadow:0 0 0 0 rgba(0,0,0,0); opacity:0; } }
+
+    @media (max-width:900px){ :root{ --panelW:92vw; } .mapOverlay{ right:0; } .modal{ grid-template-columns:1fr; } }
+
+    /* Modal */
+    .modalOverlay{ position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; align-items:center; justify-content:center; z-index:1600; }
+    .modal{
+      width:min(920px,92vw); max-height:84vh; overflow:auto; background:rgba(20, 12, 40, 0.9);
+      border:1px solid rgba(255,255,255,.18); border-radius:20px; box-shadow:0 20px 60px rgba(0,0,0,.5);
+      display:grid; grid-template-columns: 1fr 320px; gap:0; color:#fff; transform:scale(.96); opacity:0; transition:.22s ease;
+    }
+    .modal.show{ transform:scale(1); opacity:1; }
+    .modalImg{ background:url('IMG2.jpg') center/cover no-repeat; min-height:320px; border-top-right-radius:20px; border-bottom-right-radius:20px; }
+    .modalBody{ padding:20px 22px; }
+    .modalHeader{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .modalTitle{ font-size:22px; font-weight:900; letter-spacing:.4px; }
+    .closeBtn{ background:transparent; border:none; color:#fff; font-size:24px; cursor:pointer; line-height:1; }
+    .missionText{ margin-top:10px; line-height:1.65; font-size:15px; color:#e9e4ff; }
+    .tips{ margin-top:14px; display:grid; gap:8px; }
+    .tips li{ background:rgba(255,255,255,.06); padding:8px 10px; border-radius:10px; }
+    .modalActions{ display:flex; gap:10px; margin-top:18px; }
+    .actBtn{ padding:10px 14px; border:none; border-radius:10px; color:#fff; cursor:pointer;
+      background:linear-gradient(90deg,#240993,#7112AF); box-shadow:0 6px 16px rgba(0,0,0,.25); }
+    .ghostBtn{ padding:10px 14px; border:1px solid rgba(255,255,255,.25); background:transparent; color:#fff; border-radius:10px; cursor:pointer; }
+
+    /* Audio controls */
+    .audioControls{
+      position:fixed; right:12px; bottom:8px; z-index:1401; display:flex; align-items:center; gap:10px;
+      background:rgba(0,0,0,.35); backdrop-filter:blur(6px); padding:8px 10px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.25);
+    }
+    .audioBtn{ border:none; outline:none; cursor:pointer; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:#1f1f1f; color:#fff; font-size:18px; }
+    .vol{ -webkit-appearance:none; appearance:none; width:140px; height:6px; border-radius:999px; background:rgba(255,255,255,.25); outline:none; }
+    .vol::-webkit-slider-thumb{ -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:#20BDFF; border:2px solid #fff; box-shadow:0 0 8px rgba(32,189,255,.8); cursor:pointer; }
+    .vol::-moz-range-thumb{ width:16px; height:16px; border-radius:50%; background:#20BDFF; border:2px solid #fff; box-shadow:0 0 8px rgba(32,189,255,.8); cursor:pointer; }
+
+    /* Zoom controls */
+    .zoomCtrl{
+      position:fixed; left:12px; bottom:6px; z-index:1402; display:flex; align-items:center; gap:6px;
+      background:rgba(0,0,0,.35); backdrop-filter:blur(6px); padding:6px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.25);
+    }
+    .zoomBtn{
+      width:34px; height:34px; border:none; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+      background:linear-gradient(180deg,#3b1f75,#6f4cc3); color:#fff; font-size:18px; box-shadow:0 6px 14px rgba(0,0,0,.25);
+      transition:transform .12s ease, filter .12s ease;
+    }
+    .zoomBtn:hover{ transform:translateY(-1px); filter:brightness(1.05); }
+    .zoomVal{ min-width:46px; text-align:center; font-weight:700; padding:0 6px; background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.2);
+      border-radius:10px; height:34px; display:flex; align-items:center; justify-content:center; }
+  </style>
+</head>
+
+<body>
+  <header>
+    <img src="Cyper.png" alt="Cyber Club Logo">
+    <div class="hdrCenter">
+      <div class="hdrTitle">Cyber TU Mission</div>
+      <button class="missionTopBtn" id="openMission">🧭 View Mission</button>
+    </div>
+    <img src="22.png" alt="University Logo">
+  </header>
+
+  <!-- progress -->
+  <div class="missionProgress">
+    <div class="barWrap"><div class="barFill" id="progressFill"></div></div>
+    <div class="miniStages" id="miniStages">
+      <div class="mini unlocked"  data-id="passwords"  title="Passwords">🔑</div>
+      <div class="mini locked"    data-id="network"    title="Network">🌐</div>
+      <div class="mini locked"    data-id="phishing"   title="Phishing">🎣</div>
+      <div class="mini locked"    data-id="encryption" title="Encryption">🔐</div>
+    </div>
+    <div class="scoreChip" id="scoreChip">Score: 0</div>
+  </div>
+
+  <!-- map -->
+  <div class="mapOverlay" id="mapArea">
+    <div class="stage unlocked" data-id="passwords"  style="top:28%; left:27%;">
+      <span class="label"><span class="icon">🔑</span><span class="txt">Passwords</span></span>
+    </div>
+    <div class="stage locked" data-id="network" style="top:40%; left:60%;">
+      <span class="label"><span class="icon">🌐</span><span class="txt">Network</span></span>
+    </div>
+    <div class="stage locked" data-id="phishing" style="top:90%; left:35%;">
+      <span class="label"><span class="icon">🎣</span><span class="txt">Phishing</span></span>
+    </div>
+    <div class="stage locked" data-id="encryption" style="top:70%; left:90%;">
+      <span class="label"><span class="icon">🔐</span><span class="txt">Encryption</span></span>
+    </div>
+  </div>
+
+  <!-- mission modal -->
+  <div class="modalOverlay" id="missionModal">
+    <div class="modal" id="missionCard">
+      <div class="modalBody">
+        <div class="modalHeader">
+          <div class="modalTitle">Cyber TU Mission</div>
+          <button class="closeBtn" id="closeMission" aria-label="Close">×</button>
+        </div>
+        <div class="missionText">
+          <p><strong>Agent, listen carefully!</strong> Red beacons on the map mark the active stations. Complete each stage to turn it <span style="color:#17b45f;font-weight:700;">green</span> and unlock the next one. Your goal: secure the campus by clearing all stages.</p>
+          <p><strong>How to play:</strong> Start with <b>Passwords</b>. When a stage is completed, it turns green and the next one unlocks automatically. Track your progress in the top bar.</p>
+        </div>
+        <ul class="tips">
+          <li>🎯 Order: <b>Passwords → Network → Phishing → Encryption</b>.</li>
+          <li>🗺️ Use the map and click the active (red) beacon to enter.</li>
+          <li>🏆 Turn all beacons green to finish the mission.</li>
+        </ul>
+        <div class="modalActions">
+          <button class="actBtn" id="startPlay">Let's Play</button>
+          <button class="ghostBtn" id="closeGhost">Close</button>
+        </div>
+      </div>
+      <div class="modalImg" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <!-- final result modal -->
+  <div class="modalOverlay" id="finalModal">
+    <div class="modal" id="finalCard">
+      <div class="modalBody">
+        <div class="modalHeader">
+          <div class="modalTitle">Mission Complete!</div>
+          <button class="closeBtn" id="closeFinal" aria-label="Close">×</button>
+        </div>
+        <div class="missionText">
+          <!-- سيملأه الجافاسكربت -->
+        </div>
+        <div class="modalActions">
+          <button class="actBtn" id="playAgainBtn">Play Again</button>
+          <button class="ghostBtn" id="finalCloseBtn">Close</button>
+        </div>
+      </div>
+      <div class="modalImg" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <footer><span class="ear">🎧</span> For support , contact Tahani Althobiti</footer>
+
+  <div class="circle-img"><img src="IMG.jpg" alt="Circle Image"></div>
+
+  <!-- audio controls -->
+  <div class="audioControls">
+    <button class="audioBtn" id="muteBtn" title="Mute / Unmute">🔊</button>
+    <input type="range" id="volume" class="vol" min="0" max="1" step="0.01" value="0.7" title="Volume" />
+  </div>
+
+  <!-- Zoom control -->
+  <div class="zoomCtrl">
+    <button class="zoomBtn" id="zoomOut" aria-label="Zoom out">−</button>
+    <div class="zoomVal" id="zoomVal">100%</div>
+    <button class="zoomBtn" id="zoomIn" aria-label="Zoom in">+</button>
+  </div>
+
+  <script>
+    const order=['passwords','network','phishing','encryption'];
+    let playerScore = 0;
+    let zoom = 1;
+
+    /* ===== SFX loader ===== */
+    const SFX_BASE = ''; // نقرأ من نفس المجلد
+const SFX_FILES = { click:'click', unlock:'click', complete:'complete' }; // unlock مؤقتًا نفس click
+
+    const EXT_ORDER = ['.wav', '.mp3', '.ogg']; // نفضّل wav أولاً
+
+    function makeSfx(name) {
+      const audio = new Audio(); audio.preload = 'auto'; let i = 0;
+      const candidates = EXT_ORDER.map(ext => SFX_BASE + name + ext);
+      function tryNext() {
+        if (i >= candidates.length) { console.warn('SFX not found/compatible:', name, candidates); return; }
+        audio.src = candidates[i]; audio.load();
+        audio.onerror = () => { i++; tryNext(); };
+      }
+      tryNext(); return audio;
+    }
+    function playSafe(aud){ if(!aud) return; try{ aud.currentTime = 0; const p = aud.play(); if (p && p.catch) p.catch(()=>{}); }catch(_e){} }
+
+    const sfxClick    = makeSfx(SFX_FILES.click);
+    const sfxUnlock   = makeSfx(SFX_FILES.unlock);
+    const sfxComplete = makeSfx(SFX_FILES.complete);
+
+    function unlockAudioOnFirstGesture(){
+      const handler = ()=>{ playSafe(sfxClick);
+        window.removeEventListener('mousedown', handler);
+        window.removeEventListener('touchstart', handler);
+        window.removeEventListener('keydown', handler);
+      };
+      window.addEventListener('mousedown', handler, { once:true });
+      window.addEventListener('touchstart', handler, { once:true });
+      window.addEventListener('keydown', handler, { once:true });
+    }
+    unlockAudioOnFirstGesture();
+
+    window.playSafe = window.playSafe || playSafe;
+
+    /* ===== Progress + Score UI ===== */
+    function updateScore(delta=0){
+      playerScore = Math.max(0, playerScore + delta);
+      const chip = document.getElementById('scoreChip');
+      if(chip) chip.textContent = 'Score: ' + playerScore;
+    }
+    function updateProgressUI(){
+      const total = order.length;
+      const done  = document.querySelectorAll('.stage.completed').length;
+      const percent = Math.round((done/total)*100);
+      const fill = document.getElementById('progressFill');
+      if(fill) fill.style.width = percent + '%';
+      order.forEach((id)=>{
+        const mini = document.querySelector(`.mini[data-id="${id}"]`);
+        const stage = document.querySelector(`.stage[data-id="${id}"]`);
+        if(mini && stage){
+          mini.classList.remove('locked','unlocked','completed');
+          if(stage.classList.contains('completed')) mini.classList.add('completed');
+          else if(stage.classList.contains('unlocked')) mini.classList.add('unlocked');
+          else mini.classList.add('locked');
+        }
+      });
+    }
+
+    function getStageModule(id){
+      switch(id){
+        case 'passwords':  return window.PasswordsStage;
+        case 'network':    return window.NetworkStage;
+        case 'phishing':   return window.PhishingStage;
+        case 'encryption': return window.EncryptionStage;
+        default: return null;
+      }
+    }
+
+    /* ===== Outcome / Badges ===== */
+    function tierFromPercent(p){
+      if (p >= 85) return { key:'hero',     emoji:'🏆', label:'CYBER HERO',     msg:'Outstanding! You dominated the mission.' };
+      if (p >= 60) return { key:'defender', emoji:'🛡️', label:'CYBER DEFENDER', msg:'Solid work — keep pushing!' };
+      return          { key:'trainee',  emoji:'🚀', label:'CYBER TRAINEE',  msg:'Good try! Train more and come back stronger.' };
+    }
+    function computeTotal(){
+      if (typeof window.maxScorePossible === 'number' && window.maxScorePossible > 0) return window.maxScorePossible;
+      if (window.stageMax && typeof window.stageMax === 'object') return Object.values(window.stageMax).reduce((a,b)=>a+(+b||0),0);
+      if (window.MAX_POINTS && typeof window.MAX_POINTS === 'object') return Object.values(window.MAX_POINTS).reduce((a,b)=>a+(+b||0),0);
+      const stages = document.querySelectorAll('.mini').length || 4;
+      return stages * 10;
+    }
+    // ===== استبدال كامل للدالة ensureFinalDom =====
+function ensureFinalDom(){
+  const box = document.querySelector('#finalCard .missionText');
+  if (!box) return null;
+  if (!box.__wired){
+    box.innerHTML = `
+      <p><strong>Your Score:</strong> <span class="scoreValue">0</span></p>
+      <p><strong><span class="scoreBreak">0 total • 0%</span></strong></p>
+
+      <hr style="margin:14px 0; border-color:rgba(255,255,255,.15)">
+
+      <div class="discoverBox" style="display:grid;gap:8px;">
+        <label for="discoverPct" style="font-weight:700;">🔎 اكتشف البادج الخاصة بك</label>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input id="discoverPct" type="number" min="0" max="100" step="1" placeholder="أدخل نسبتك (0–100)"
+            style="width:160px;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.25);color:#fff;">
+          <button class="actBtn" id="discoverBtn" type="button">Show Badge</button>
+          <span id="discoverHint" style="opacity:.85;">(نحسب البادج حسب العتبات)</span>
+        </div>
+        <div id="discoverResult" style="display:none;align-items:center;gap:10px;margin-top:6px;">
+          <span class="discoverBadge" style="
+            display:inline-flex;align-items:center;gap:8px;
+            background:rgba(255,255,255,.08);
+            border:1px solid rgba(255,255,255,.2);
+            padding:8px 14px;border-radius:999px;font-weight:800;">
+            <span class="discoverEmoji">🏆</span>
+            <span class="discoverLabel">CYBER HERO</span>
+          </span>
+          <span class="discoverMsg" style="opacity:.95;"></span>
+        </div>
+      </div>
+    `;
+    box.__wired = true;
+  }
+  return {
+    root:     box,
+    scoreEl:  box.querySelector('.scoreValue'),
+    breakEl:  box.querySelector('.scoreBreak'),
+    dInput:   box.querySelector('#discoverPct'),
+    dBtn:     box.querySelector('#discoverBtn'),
+    dWrap:    box.querySelector('#discoverResult'),
+    dEmj:     box.querySelector('.discoverEmoji'),
+    dLbl:     box.querySelector('.discoverLabel'),
+    dMsg:     box.querySelector('.discoverMsg')
+  };
+}
+
+// ===== استبدال كامل للدالة renderOutcome =====
+function renderOutcome(){
+  const h = ensureFinalDom(); if (!h) return;
+  const TOTAL = Math.max(1, computeTotal());
+  let pct = Math.round((playerScore / TOTAL) * 100);
+  if (!isFinite(pct) || pct < 0) pct = 0; if (pct > 100) pct = 100;
+  h.scoreEl.textContent = String(playerScore);
+  h.breakEl.textContent = `${TOTAL} total • ${pct}%`;
+}
+
+    function wireBadgeDiscovery(){
+      const h = ensureFinalDom(); if(!h || !h.dBtn || !h.dInput) return;
+      function showBadgeFor(pct){
+        let p = Number(pct); if (!Number.isFinite(p)) return;
+        p = Math.max(0, Math.min(100, Math.round(p)));
+        const t = tierFromPercent(p);
+        h.dEmj.textContent = t.emoji;
+        h.dLbl.textContent = t.label;
+        h.dMsg.textContent = `${t.msg} (${p}%)`;
+        h.dWrap.style.display = 'inline-flex';
+      }
+      h.dBtn.onclick = ()=> { if (!h.dInput.value) { h.dInput.focus(); return; } showBadgeFor(h.dInput.value); };
+      h.dInput.onkeydown = (e)=>{ if (e.key==='Enter'){ e.preventDefault(); h.dBtn.click(); } };
+    }
+    function openResultModal(){
+      const finalModalEl = document.getElementById('finalModal');
+      const finalCardEl  = document.getElementById('finalCard');
+      const titleEl = finalCardEl.querySelector('.modalHeader .modalTitle');
+      if (titleEl) titleEl.textContent = 'Mission Complete!';
+      renderOutcome();
+      finalModalEl.style.display = 'flex';
+      requestAnimationFrame(()=> finalCardEl.classList.add('show'));
+      // اربط قسم الاكتشاف بعد ما تظهر
+      setTimeout(wireBadgeDiscovery, 50);
+    }
+    function hideFinalResults(){
+      const finalModalEl = document.getElementById('finalModal');
+      const finalCardEl  = document.getElementById('finalCard');
+      finalCardEl.classList.remove('show');
+      setTimeout(()=> finalModalEl.style.display='none', 180);
+    }
+
+    // أزرار نافذة النهاية + ريستارت
+    window.addEventListener('DOMContentLoaded', ()=>{
+      document.getElementById('closeFinal')?.addEventListener('click', hideFinalResults);
+      document.getElementById('finalCloseBtn')?.addEventListener('click', hideFinalResults);
+      document.getElementById('playAgainBtn')?.addEventListener('click', ()=>{
+        document.querySelectorAll('.stage').forEach(s=>{
+          s.classList.remove('completed','unlocked');
+          if(s.dataset.id==='passwords') s.classList.add('unlocked'); else s.classList.add('locked');
+        });
+        playerScore = 0; updateScore(0); updateProgressUI(); hideFinalResults();
+      });
+    });
+
+    /* ===== Complete + Unlock flow ===== */
+    function markCompletedAndUnlockNext(id, scoreDelta=10){
+      const stageEl = document.querySelector(`.stage[data-id="${id}"]`);
+      if(!stageEl || stageEl.classList.contains('completed')) return;
+      stageEl.classList.remove('unlocked');
+      stageEl.classList.add('completed');
+      playSafe(sfxComplete);
+
+      updateScore(scoreDelta);
+
+      const idx = order.indexOf(id);
+      const nextId = (idx >= 0 && idx < order.length-1) ? order[idx+1] : null;
+      if(nextId){
+        const nextEl = document.querySelector(`.stage[data-id="${nextId}"]`);
+        if(nextEl && !nextEl.classList.contains('completed')){
+          nextEl.classList.remove('locked');
+          nextEl.classList.add('unlocked');
+          setTimeout(()=> playSafe(sfxUnlock), 100);
+        }
+        updateProgressUI();
+      } else {
+        // آخر مرحلة
+        updateProgressUI();
+        openResultModal();
+      }
+    }
+
+    function launchStage(id){
+      const el = document.querySelector(`.stage[data-id="${id}"]`);
+      if(!el || !el.classList.contains('unlocked')) return;
+      playSafe(sfxClick);
+      const mod = getStageModule(id);
+      if (mod && typeof mod.open === 'function'){
+        mod.open({
+          onFinish: (res)=>{
+            if (!res || res.completed){
+              const delta = (typeof res?.scoreDelta === 'number') ? res.scoreDelta : 10;
+              markCompletedAndUnlockNext(id, delta);
+            }
+          }
+        });
+      } else {
+        alert('Stage file missing: ' + id);
+        console.warn('Stage module missing:', id);
+      }
+    }
+
+    /* ===== Zoom ===== */
+    function applyZoom(){
+      const map = document.getElementById('mapArea');
+      if(map){ map.style.transform = `scale(${zoom})`; }
+      const zv = document.getElementById('zoomVal');
+      if(zv){ zv.textContent = Math.round(zoom*100) + '%'; }
+    }
+
+    window.addEventListener('DOMContentLoaded', ()=>{
+      document.querySelectorAll('.stage').forEach(el=> el.addEventListener('click', ()=> launchStage(el.dataset.id)));
+      document.getElementById('zoomIn') .addEventListener('click', ()=>{ zoom = Math.min(2.0, zoom+0.1); applyZoom(); });
+      document.getElementById('zoomOut').addEventListener('click', ()=>{ zoom = Math.max(0.6, zoom-0.1); applyZoom(); });
+      applyZoom(); updateScore(0); updateProgressUI();
+    });
+
+    /* ===== Audio UI ===== */
+    const muteBtn   = document.getElementById('muteBtn');
+    const volSlider = document.getElementById('volume');
+    let muted = false;
+    function applyVolume(v){ [sfxClick,sfxComplete,sfxUnlock].forEach(a=> a.volume=v); }
+    applyVolume(parseFloat(volSlider.value));
+    muteBtn.addEventListener('click', ()=>{ muted = !muted; [sfxClick,sfxComplete,sfxUnlock].forEach(a=> a.muted = muted); muteBtn.textContent = muted ? '🔇' : '🔊'; });
+    volSlider.addEventListener('input', e=> applyVolume(parseFloat(e.target.value)));
+
+    /* ===== Mission modal controls ===== */
+    const missionModalEl = document.getElementById('missionModal');
+    const missionCardEl  = document.getElementById('missionCard');
+    const openMissionBtn = document.getElementById('openMission');
+    const closeMissionBtn= document.getElementById('closeMission');
+    const closeGhostBtn  = document.getElementById('closeGhost');
+    const startPlayBtn   = document.getElementById('startPlay');
+
+    function openMissionModal(){ missionModalEl.style.display='flex'; requestAnimationFrame(()=> missionCardEl.classList.add('show')); }
+    function closeMissionModal(){ missionCardEl.classList.remove('show'); setTimeout(()=> missionModalEl.style.display='none', 180); }
+
+    openMissionBtn.addEventListener('click', openMissionModal);
+    closeMissionBtn.addEventListener('click', closeMissionModal);
+    closeGhostBtn.addEventListener('click', closeMissionModal);
+    startPlayBtn.addEventListener('click', closeMissionModal);
+
+    window.addEventListener('load', ()=> setTimeout(openMissionModal, 500));
+  </script>
+
+  <!-- Stage files -->
+  <script src="passwords.js"></script>
+  <script src="network.js"></script>
+  <script src="phishing.js"></script>
+  <script src="encryption.js"></script>
+
+  <!-- Encryption wrapper -->
+  <script>
+  (function(){
+    if (window.__EncryptionStageWrapped2) return;
+    window.__EncryptionStageWrapped2 = true;
+    window.EncryptionStage = {
+      open(opts = {}){
+        const host = document.createElement('div');
+        host.className = 'legacy-overlay';
+        host.innerHTML = `
+          <style>
+            .legacy-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:2300}
+            .legacy-wrap{width:min(1020px,94vw);max-height:90vh;display:flex;flex-direction:column;background:#0b1020;color:#fff;border:1px solid #23306b;border-radius:18px;box-shadow:0 25px 60px rgba(0,0,0,.5);overflow:hidden}
+            .legacy-hud{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:#0e1634;border-bottom:1px solid #23306b}
+            .chip{background:#111a3f;border:1px solid #2d3d7e;border-radius:10px;padding:6px 10px;color:#cfd5ff}
+            .screen{padding:18px;min-height:360px}
+            .card{background:#12193a;border:1px solid #23306b;border-radius:12px;padding:14px;margin:12px 0;color:#fff}
+            .row{display:flex;gap:10px;flex-wrap:wrap}
+            .btn{background:#23306b;color:#fff;border:1px solid #3a4aa1;padding:10px 14px;border-radius:10px;cursor:pointer;transition:.15s}
+            .btn:hover{filter:brightness(1.05)}
+            .btn.ok{background:#1f7a53;border-color:#37aa7a}
+            .toolbar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#0e1634;border-top:1px solid #23306b}
+            .muted{color:#cfd5ff}
+          </style>
+          <div class="legacy-wrap">
+            <div class="legacy-hud">
+              <div class="chip">Stage: <b id="hudStage">Encryption</b></div>
+              <div style="display:flex;gap:8px">
+                <div class="chip">Score: <b id="hudScore">0</b></div>
+                <div class="chip">Lives: <b id="hudLives">2</b></div>
+              </div>
+            </div>
+            <div class="screen" id="screen"></div>
+            <div class="toolbar">
+              <button class="btn" id="encBackBtn">← Back</button>
+              <div class="row">
+                <button id="btnPrev" class="btn">Prev</button>
+                <button id="btnNext" class="btn">Next</button>
+              </div>
+            </div>
+          </div>`;
+        document.body.appendChild(host);
+
+        function saveGlobals(){ return {
+          state: window.state, updateHUD: window.updateHUD, enableNav: window.enableNav,
+          disableNav: window.disableNav, nextStep: window.nextStep, prevStep: window.prevStep,
+          backToMap: window.backToMap, renderEncryption: window.renderEncryption, initEncryption: window.initEncryption,
+        }; }
+        function restoreGlobals(g){
+          window.state=g.state; window.updateHUD=g.updateHUD; window.enableNav=g.enableNav; window.disableNav=g.disableNav;
+          window.nextStep=g.nextStep; window.prevStep=g.prevStep; window.backToMap=g.backToMap;
+          window.renderEncryption=g.renderEncryption; window.initEncryption=g.initEncryption;
+        }
+        host.__prevGlobals = saveGlobals();
+
+        window.state = { score: 0, lives: 2, stage: 'encryption', step: 0 };
+        window.updateHUD = function(){
+          const s = window.state || { score: 0, lives: 2 };
+          host.querySelector('#hudScore').textContent = s.score;
+          host.querySelector('#hudLives').textContent = s.lives;
+          host.querySelector('#hudStage').textContent = 'Encryption';
+        };
+        window.enableNav  = function(){ host.querySelector('#btnPrev')?.removeAttribute('disabled'); host.querySelector('#btnNext')?.removeAttribute('disabled'); };
+        window.disableNav = function(){ host.querySelector('#btnPrev')?.setAttribute('disabled',''); host.querySelector('#btnNext')?.setAttribute('disabled',''); };
+
+        window.backToMap = function(){
+          try{ opts.onFinish?.({ completed: true, scoreDelta: 10 }); }catch(e){}
+          try{ host.remove(); }catch(e){}
+          restoreGlobals(host.__prevGlobals);
+        };
+        window.nextStep = function(){ if(!window.state) return; window.state.step=(window.state.step||0)+1; try{ window.renderEncryption?.(); }catch(e){} window.updateHUD?.(); };
+        window.prevStep = function(){ if(!window.state) return; window.state.step=Math.max((window.state.step||0)-1,0); try{ window.renderEncryption?.(); }catch(e){} window.updateHUD?.(); };
+
+        host.querySelector('#encBackBtn')?.addEventListener('click', window.backToMap);
+        host.querySelector('#btnPrev')?.addEventListener('click', window.prevStep);
+        host.querySelector('#btnNext')?.addEventListener('click', window.nextStep);
+
+        try{
+          if (typeof window.initEncryption === 'function') window.initEncryption();
+          if (typeof window.renderEncryption === 'function') window.renderEncryption();
+          else {
+            const scr = host.querySelector('#screen');
+            scr.innerHTML = `
+              <div class="card">
+                <h3>Encryption Stage</h3>
+                <p class="muted">Missing <code>renderEncryption()</code> in <b>encryption.js</b>.</p>
+                <div class="row"><button class="btn ok" id="encCloseBtn">Finish</button></div>
+              </div>`;
+            scr.querySelector('#encCloseBtn')?.addEventListener('click', window.backToMap);
+          }
+          window.updateHUD?.();
+        }catch(e){
+          console.error('Failed to start Encryption stage', e);
+          window.backToMap();
+        }
+      }
+    };
+  })();
+  </script>
+
+  <!-- Network wrapper -->
+  <script>
+  (function(){
+    if (window.__NetworkStageWrapped) return;
+    window.__NetworkStageWrapped = true;
+
+    function makeShell(){
+      const host = document.createElement('div');
+      host.className = 'legacy-overlay';
+      host.innerHTML = `
+        <style>
+          .legacy-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:2200}
+          .legacy-wrap{width:min(1020px,94vw);max-height:90vh;display:flex;flex-direction:column;background:#0b1020;color:#fff;border:1px solid #23306b;border-radius:18px;box-shadow:0 25px 60px rgba(0,0,0,.5);overflow:hidden}
+          .legacy-hud{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:#0e1634;border-bottom:1px solid #23306b}
+          .chip{background:#111a3f;border:1px solid #2d3d7e;border-radius:10px;padding:6px 10px;color:#cfd5ff}
+          .screen{padding:18px;min-height:360px}
+          .card{background:#12193a;border:1px solid #23306b;border-radius:12px;padding:14px;margin:12px 0;color:#fff}
+          .row{display:flex;gap:10px;flex-wrap:wrap}
+          .btn{background:#23306b;color:#fff;border:1px solid #3a4aa1;padding:10px 14px;border-radius:10px;cursor:pointer;transition:.15s}
+          .btn:hover{filter:brightness(1.05)}
+          .btn.ok{background:#1f7a53;border-color:#37aa7a}
+          .toolbar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#0e1634;border-top:1px solid #23306b}
+        </style>
+        <div class="legacy-wrap">
+          <div class="legacy-hud">
+            <div class="chip">Stage: <b>Network</b></div>
+            <div style="display:flex;gap:8px">
+              <div class="chip">Score: <b id="hudScore">0</b></div>
+              <div class="chip">Lives: <b id="hudLives">2</b></div>
+            </div>
+          </div>
+          <div class="screen" id="screen"></div>
+          <div class="toolbar">
+            <button class="btn" id="btnBack">← Back</button>
+            <div class="row">
+              <button id="btnPrev" class="btn">Prev</button>
+              <button id="btnNext" class="btn">Next</button>
+            </div>
+          </div>
+        </div>`;
+      document.body.appendChild(host);
+      return host;
+    }
+    function saveGlobals(){ return {
+      state: window.state, updateHUD: window.updateHUD, enableNav: window.enableNav, disableNav: window.disableNav,
+      nextStep: window.nextStep, prevStep: window.prevStep, backToMap: window.backToMap, renderNetwork: window.renderNetwork
+    }; }
+    function restoreGlobals(g){
+      window.state=g.state; window.updateHUD=g.updateHUD; window.enableNav=g.enableNav; window.disableNav=g.disableNav;
+      window.nextStep=g.nextStep; window.prevStep=g.prevStep; window.backToMap=g.backToMap; window.renderNetwork=g.renderNetwork;
+    }
+
+    function showFinish(host, opts){
+      const screen = host.querySelector('#screen');
+      if(!screen) return;
+      screen.innerHTML = `
+        <div class="card">
+          <h3>Network Stage Complete 🎉</h3>
+          <p class="muted">Great job! Click Finish to return to the map.</p>
+          <div class="row"><button class="btn ok" id="netFinishBtn">Finish</button></div>
+        </div>`;
+      host.querySelector('#btnNext')?.setAttribute('disabled','');
+      document.getElementById('netFinishBtn')?.addEventListener('click', ()=>{
+        try{ if(window.state) window.state.score=(window.state.score||0)+10; }catch(e){}
+        try{ window.updateHUD?.(); }catch(e){}
+        host.remove();
+        restoreGlobals(host.__prevGlobals);
+        try{ window.NetworkStage.__finishCb?.({completed:true, scoreDelta:10}); }catch(e){}
+      });
+    }
+
+    function openNetwork(opts){
+      const host = makeShell();
+      host.__prevGlobals = saveGlobals();
+      window.NetworkStage = window.NetworkStage || {};
+      window.NetworkStage.__finishCb = opts?.onFinish;
+
+      window.state = { score:0, lives:2, stage:'network', step:0 };
+      window.updateHUD = function(){
+        const s=window.state||{score:0,lives:2};
+        host.querySelector('#hudScore').textContent = s.score;
+        host.querySelector('#hudLives').textContent = s.lives;
+      };
+      window.enableNav = function(){ host.querySelector('#btnPrev')?.removeAttribute('disabled'); host.querySelector('#btnNext')?.removeAttribute('disabled'); };
+      window.disableNav = function(){ host.querySelector('#btnPrev')?.setAttribute('disabled',''); host.querySelector('#btnNext')?.setAttribute('disabled',''); };
+
+      const MAX = (typeof window.NETWORK_TOTAL_STEPS==='number' && window.NETWORK_TOTAL_STEPS>=0) ? window.NETWORK_TOTAL_STEPS : 3;
+
+      function checkDone(){
+        if (window.networkDone === true) { showFinish(host, opts); return true; }
+        if (window.state && window.state.step >= MAX) { showFinish(host, opts); return true; }
+        return false;
+      }
+
+      const originalRender = window.renderNetwork;
+      window.renderNetwork = function(){
+        try{ if(typeof originalRender==='function') originalRender(); }catch(e){}
+        window.updateHUD?.(); checkDone();
+      };
+
+      window.nextStep = function(){
+        if(!window.state) return;
+        window.state.step = (window.state.step||0) + 1;
+        if (checkDone()) return;
+        try{ window.renderNetwork?.(); }catch(e){}
+      };
+      window.prevStep = function(){
+        if(!window.state) return;
+        window.state.step = Math.max((window.state.step||0) - 1, 0);
+        try{ window.renderNetwork?.(); }catch(e){}
+      };
+      window.backToMap = function(){
+        host.remove(); restoreGlobals(host.__prevGlobals);
+        try{ opts?.onFinish?.({completed:false}); }catch(e){}
+      };
+
+      host.querySelector('#btnBack')?.addEventListener('click', window.backToMap);
+      host.querySelector('#btnPrev')?.addEventListener('click', window.prevStep);
+      host.querySelector('#btnNext')?.addEventListener('click', window.nextStep);
+
+      window.addEventListener('stage:network:complete', ()=> showFinish(host, opts), { once:true });
+
+      try{
+        if(typeof initNetwork==='function') initNetwork();
+        if(typeof originalRender==='function') originalRender();
+        else if(typeof window.renderNetwork==='function') window.renderNetwork();
+        window.updateHUD?.();
+      }catch(e){
+        console.error('Failed to start Network stage', e);
+        window.backToMap();
+      }
+    }
+
+    window.NetworkStage = { open: openNetwork };
+  })();
+  </script>
+</body>
+</html>
